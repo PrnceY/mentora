@@ -15,7 +15,7 @@ export interface StudyRequest {
 }
 
 export const MAX_TEXT = 8000;
-export const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB decoded
+export const MAX_IMAGE_BYTES = 3 * 1024 * 1024; // 3 MB decoded (Vercel caps request bodies at 4.5 MB)
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
 
 export class HttpError extends Error {

@@ -8,9 +8,9 @@ import {
   TUTOR_PARAMS,
   TUTOR_SYSTEM_INSTRUCTION,
   getModel,
-} from './config';
-import { HttpError, validateQuizPayload } from './validate';
-import type { QuizPayload, StudyRequest } from './validate';
+} from './config.js';
+import { HttpError, validateQuizPayload } from './validate.js';
+import type { QuizPayload, StudyRequest } from './validate.js';
 
 let client: GoogleGenAI | null = null;
 /** API key stays server-side (.env); the browser never sees it. */

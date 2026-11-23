@@ -55,12 +55,22 @@ export function fileToImage(file: File): Promise<{ data: string; mimeType: strin
     if (file.size > MAX_IMAGE_BYTES) {
       return reject(new Error('Image is larger than 10 MB. Please choose a smaller file.'));
     }
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('Could not read the file.'));
-    reader.onload = () => {
-      const result = String(reader.result);
-      resolve({ data: result.split(',')[1] ?? '', mimeType: file.type });
-    };
-    reader.readAsDataURL(file);
+        downscale(file).then(resolve).catch(() => reject(new Error('Could not read the image.')));
   });
+}
+
+/** Shrinks to max 1600px JPEG so uploads stay under Vercel's 4.5 MB body limit. */
+async function downscale(file: File, maxDim = 1600, quality = 0.85) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const url = canvas.toDataURL('image/jpeg', quality);
+  return { data: url.split(',')[1] ?? '', mimeType: 'image/jpeg' };
 }

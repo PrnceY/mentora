@@ -2,10 +2,10 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getModel } from './config';
-import { demoQuiz, demoTutor } from './demo';
-import { generateQuiz, isLive, streamTutor } from './gemini';
-import { HttpError, parseStudyRequest } from './validate';
+import { getModel } from './config.js';
+import { demoQuiz, demoTutor } from './demo.js';
+import { generateQuiz, isLive, streamTutor } from './gemini.js';
+import { HttpError, parseStudyRequest } from './validate.js';
 import type { NextFunction, Request, Response } from 'express';
 
 const app = express();

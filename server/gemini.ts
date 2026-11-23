@@ -27,6 +27,14 @@ function buildParts(req: StudyRequest, instruction: string): Part[] {
   return parts;
 }
 
+function friendly(err: unknown, fallback: string) {
+  const s = String((err as Error)?.message ?? err);
+  if (/\b503\b|UNAVAILABLE|overloaded/i.test(s)) return 'The AI model is busy right now. Please try again in a moment.';
+  if (/\b429\b|RESOURCE_EXHAUSTED/i.test(s)) return 'Rate limit reached. Please wait a minute and try again.';
+  if (/\b404\b|NOT_FOUND/i.test(s)) return 'The configured AI model was not found.';
+  return fallback;
+}
+
 /** Streams the tutor explanation chunk-by-chunk (generateContentStream). */
 export async function* streamTutor(req: StudyRequest): AsyncGenerator<string> {
   try {
@@ -40,7 +48,7 @@ export async function* streamTutor(req: StudyRequest): AsyncGenerator<string> {
     }
   } catch (err) {
     console.error('Gemini tutor error:', err);
-    throw new HttpError(502, 'Failed to process the AI tutor request.');
+    throw new HttpError(502, friendly(err, 'Failed to process the AI tutor request.'));
   }
 }
 
@@ -70,7 +78,7 @@ export async function generateQuiz(req: StudyRequest): Promise<QuizPayload> {
     text = res.text;
   } catch (err) {
     console.error('Gemini quiz error:', err);
-    throw new HttpError(502, 'Failed to process the quiz generation request.');
+    throw new HttpError(502, friendly(err, 'Failed to process the quiz generation request.'));
   }
   try {
     return validateQuizPayload(JSON.parse(text ?? ''));

@@ -86,8 +86,12 @@ export default function App() {
             buffer += chunk;
             setStatus('streaming');
             const m = buffer.match(/^(OUT_OF_SCOPE|UNREADABLE):\s*(.*)/s);
-            if (m) setRefusal(m[2].trim());
-            else setAnswer(buffer);
+            if (m) {
+              setRefusal(m[2].trim());
+              setAnswer('');
+            } else if (!('OUT_OF_SCOPE:'.startsWith(buffer) || 'UNREADABLE:'.startsWith(buffer))) {
+              setAnswer(buffer);
+            }
           },
           controller.signal,
         );
